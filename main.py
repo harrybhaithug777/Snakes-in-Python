@@ -1,232 +1,168 @@
+author = 'Harshit Chaudhary'
+
+#Importing The Modules
 import pygame
 import random
 import os
 
-pygame.init()
+#Initialization
 pygame.mixer.init()
+pygame.init()
 
 
+#Colors
+white = (255, 255, 255)
+red = (255, 0, 0)
+black = (0, 0, 0)
+snakegreen = (35, 45, 40)
 
-# Colors
-White = (255, 255, 255)
-Red = (255, 0, 0)
-Black = (0, 0, 0)
-Green = (0, 255, 0)
+#Game Backgrounds
+bg1 = pygame.image.load("Screen/bg.jpg")
+bg2 = pygame.image.load("Screen/bg2.jpg")
+intro = pygame.image.load("Screen/intro1.png")
+outro = pygame.image.load("Screen/outro.png")
 
-
-
-
-
-
-screen_width = 1200
+#Creating The window
+screen_width = 900
 screen_height = 600
-
-
-
-pygame.display.set_caption("Snakes 3.O")
 gameWindow = pygame.display.set_mode((screen_width, screen_height))
+
+#Game Title
+pygame.display.set_caption("Snake By Harshit")
 pygame.display.update()
 
+#Music
+pygame.mixer.music.load('music/wc.mp3')
+pygame.mixer.music.play(100)
+pygame.mixer.music.set_volume(.6)
 
-# Images
-Home_Page = pygame.image.load("Images/SnakeHome.png")
-Home_Page = pygame.transform.scale(Home_Page, (screen_width, screen_height)).convert_alpha()
-Main_Page = pygame.image.load("Images/SnakeMain.png")
-Main_Page = pygame.transform.scale(Main_Page, (screen_width, screen_height)).convert_alpha()
-Game_Over_Page = pygame.image.load("Images/Game Over.png")
-Game_Over_Page = pygame.transform.scale(Game_Over_Page, (screen_width, screen_height)).convert_alpha()
-
-
-
-# Creating some specific variables outside of gameloop
-exit_game = False
-game_over = False
-fps = random.randint(50, 70)
+#Variables For The Game
 clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 55)
-
-
+font = pygame.font.SysFont('Harrington', 35)
 
 def text_screen(text, color, x, y):
-    screen_text = font.render(text, True, color)
-    gameWindow.blit(screen_text, [x, y])
-
-
-
+   screen_text = font.render(text, True, color)
+   gameWindow.blit(screen_text, [x,y])
 
 def plot_snake(gameWindow, color, snk_list, snake_size):
-    for x,y in snk_list:
-        pygame.draw.rect(gameWindow, color, [x, y, snake_size, snake_size])
+   for x,y in snk_list:
+       pygame.draw.rect(gameWindow, color, [x, y, snake_size, snake_size])
 
-snk_list = []
-snk_length = 1
 
+#Welcome Screen
 
 def welcome():
     exit_game = False
     while not exit_game:
-        gameWindow.fill(Black)
-        gameWindow.blit(Home_Page, (0, 0))
-        text_screen("Welcome to Snakes! Press Enter to Play", Red, 260, 250)
-
+        gameWindow.blit(intro, (0,0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit_game = True
-
-                
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                    pygame.mixer.music.fadeout(200)
+                    pygame.mixer.music.load('music/bgm.mp3')
+                    pygame.mixer.music.play(100)
                     gameloop()
         pygame.display.update()
-        clock.tick(fps)
-
-
-
+        clock.tick(60)
 
 # Game Loop
 def gameloop():
-    # Playing Background Music
-    pygame.mixer.music.load("Music/Background.mp3")
-    pygame.mixer.music.play(-1)
-    # Game Specific variables
-    exit_game = False
-    game_over = False
-    Snake_x = 31
-    Snake_y = 34
-    snake_size = 25
-    fps = random.randint(50, 70)
-    clock = pygame.time.Clock()
-    init_velocity = 6
-    velocity_x = 0
-    velocity_y = 0
-    food_x = random.randint(225, 450)
-    food_y = random.randint(150, 300)
-    score = 0
-    snk_list = []
-    snk_length = 1
-    if not os.path.exists("hiscore.txt"):
-        with open("hiscore.txt", "w") as f:
-            hiscore = f.write("0")
-    with open("hiscore.txt", "r") as f:
-        hiscore = f.read()
-    food_range = 18
-    font = pygame.font.SysFont(None, 55)
-    while not exit_game:
-        if game_over:
-            gameWindow.fill(Red)
-            gameWindow.blit(Game_Over_Page, (0, 0))
-            with open("hiscore.txt", "w") as f:
-                f.write(str(hiscore))
+
+# Game specific variables
+   exit_game = False
+   game_over = False
+   snake_x = 45
+   snake_y = 55
+   velocity_x = 0
+   velocity_y = 0
+   snk_list = []
+   snk_length = 1
+
+#Highscore Build
+   if(not os.path.exists("highscore.txt")):
+       with open("highscore.txt", "w") as f:
+           f.write("0")
+   with open("highscore.txt", "r") as f:
+            highscore = f.read()
+
+#Food
+   food_x = random.randint(20, screen_width)
+   food_y = random.randint(20, screen_height)
+
+#Game Variables
+   score = 0
+   init_velocity = 5
+   snake_size = 30
+   fps = 60
+   while not exit_game:
+       if game_over:
+           with open("highscore.txt", "w") as f:
+               f.write(str(highscore))
+
+#GameOverScreen
+
+           gameWindow.blit(outro, (0, 0))
+           text_screen("Score: " + str(score ), snakegreen, 385, 350)
+           for event in pygame.event.get():
+               if event.type == pygame.QUIT:
+                   exit_game = True
+               if event.type == pygame.KEYDOWN:
+                   if event.key == pygame.K_RETURN:
+                       welcome()
+       else:
+           for event in pygame.event.get():
+               if event.type == pygame.QUIT:
+                   exit_game = True
+               if event.type == pygame.KEYDOWN:
+                   if event.key == pygame.K_RIGHT:
+                       velocity_x = init_velocity
+                       velocity_y = 0
+                   if event.key == pygame.K_LEFT:
+                       velocity_x = - init_velocity
+                       velocity_y = 0
+                   if event.key == pygame.K_UP:
+                       velocity_y = - init_velocity
+                       velocity_x = 0
+                   if event.key == pygame.K_DOWN:
+                       velocity_y = init_velocity
+                       velocity_x = 0
+                   if event.key == pygame.K_q:
+                        score +=10
+           snake_x = snake_x + velocity_x
+           snake_y = snake_y + velocity_y
+           if abs(snake_x - food_x)<12 and abs(snake_y - food_y)<12:
+               score +=10
+               food_x = random.randint(20, screen_width )
+               food_y = random.randint(20, screen_height )
+               snk_length +=5
+               if score>int(highscore):
+                   highscore = score
+           gameWindow.blit(bg2, (0, 0))
+           text_screen("Score: " + str(score) + "  Highscore: "+str(highscore),  snakegreen, 5, 5)
+           pygame.draw.rect(gameWindow, red, [food_x, food_y, snake_size, snake_size])
+           head = []
+           head.append(snake_x)
+           head.append(snake_y)
+           snk_list.append(head)
 
 
-            for event in pygame.event.get(): 
-                if event.type == pygame.QUIT:
-                    exit_game = True
-
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        gameloop()
-
-        else:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    exit_game = True
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RIGHT:
-                        velocity_x = init_velocity
-                        velocity_y = 0
-                    
-
-                    if event.key == pygame.K_LEFT:
-                        velocity_x = - init_velocity
-                        velocity_y = 0
-                    
-
-                    if event.key == pygame.K_UP:
-                        velocity_y = - init_velocity
-                        velocity_x = 0
-                    
-
-                    if event.key == pygame.K_DOWN:
-                        velocity_y = init_velocity
-                        velocity_x = 0
-                    
-
-                    if event.key == pygame.K_q:
-                        score+=10
-                        snk_length+=5
-                    
-
-                    if event.key == pygame.K_RCTRL:
-                        food_range = 18
-                    
-
-                    if event.key == pygame.K_LCTRL:
-                        food_range = 36
-                    
-
-                    
-
-
-
-            Snake_x += velocity_x
-            Snake_y += velocity_y
-
-
-            if abs(Snake_x - food_x)<food_range and abs(Snake_y - food_y)<food_range:
-                score +=10
-                food_x = random.randint(50, 1000)
-                food_y = random.randint(20, 550)
-                snk_length+=5
-                if score>int(hiscore):
-                    hiscore = score
-            
-
-
-
-            gameWindow.fill(Black)
-            gameWindow.blit(Main_Page, (0, 0))
-            text_screen("Score: "+ str(score), Red, 5, 5)
-            text_screen("Score: "+ str(score), Red, 5, 5)
-            text_screen("High Score: "+ str(hiscore), Red, 350, 5)
-            pygame.draw.rect(gameWindow, Green, [food_x, food_y, snake_size, snake_size])
-            text_screen("FPS: "+ str(fps), Red, 5, 55)
-            text_screen("X: "+ str(Snake_x), Red, 1060, 5)
-            text_screen("Y: "+ str(Snake_y), Red, 1060, 55)
-
-            head = []
-            head.append(Snake_x)
-            head.append(Snake_y)
-            snk_list.append(head)
-            if len(snk_list)>snk_length:
-                del snk_list[0]
-            
-
-
-            if head in snk_list[:-1]:
-                # Playing Game Over Music
-                pygame.mixer.music.load("Music/Big Explosion Cut Off.mp3")
-                pygame.mixer.music.play(-1)
-                game_over = True
-                
-            if Snake_x<0 or Snake_x>screen_width or Snake_y<0 or Snake_y>screen_height:
-                # Playing Game Over Music
-                pygame.mixer.music.load("Music/Big Explosion Cut Off.mp3")
-                pygame.mixer.music.play(-1)
-                game_over = True
-            
-            
-
-
-
-            plot_snake(gameWindow, Red, snk_list, snake_size)
-        pygame.display.update()
-        clock.tick(fps)
-
-
-    pygame.quit()
-    quit()
-
+           if len(snk_list)>snk_length:
+               del snk_list[0]
+           if head in snk_list[:-1]:
+               game_over = True
+               pygame.mixer.music.load('music/bgm1.mp3')
+               pygame.mixer.music.play(100)
+               pygame.mixer.music.set_volume(.6)
+           if snake_x<0 or snake_x>screen_width or snake_y<0 or snake_y>screen_height:
+               game_over = True
+               pygame.mixer.music.load('music/bgm2.mp3')
+               pygame.mixer.music.play(100)
+               pygame.mixer.music.set_volume(.6)
+           plot_snake(gameWindow, black, snk_list, snake_size)
+       pygame.display.update()
+       clock.tick(fps)
+   pygame.quit()
+   quit()
 welcome()
